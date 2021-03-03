@@ -123,8 +123,8 @@ messages <- c(
   'ZFO' = 'UTC & Time from origin Waypoint'
 )
 
-nmea_talkers <- tibble::enframe(talkers, "talker", "talker_label")
-nmea_message_types <- tibble::enframe(messages, "message_type", "message_type_label")
+nmea_talkers <- as.data.frame(tibble::enframe(talkers, "talker", "talker_label"))
+nmea_message_types <- as.data.frame(tibble::enframe(messages, "message_type", "message_type_label"))
 
 usethis::use_data(nmea_talkers, overwrite = TRUE)
 usethis::use_data(nmea_message_types, overwrite = TRUE)
