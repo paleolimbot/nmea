@@ -1,0 +1,82 @@
+
+#' Create NMEA sentences
+#'
+#' Most NMEA sentences are valid ASCII text. Some, however, contain embedded
+#' nul characters as part of their structure and can't be represented by
+#' a `character()`.
+#'
+#' @param x An object to be converted to one or more NMEA sentences
+#' @param ... Unused
+#'
+#' @return A [new_nmea()].
+#' @export
+#'
+#' @examples
+#' nmea()
+#' as_nmea(NA_character_)
+#' as_nmea(nmea_test_basic)
+#' as_nmea(list(charToRaw(nmea_test_basic[1])))
+#' as_nmea(charToRaw(nmea_test_basic[1]))
+#'
+nmea <- function(x = list()) {
+  vctrs::vec_assert(x, list())
+  new_nmea(x)
+}
+
+#' @rdname nmea
+#' @export
+as_nmea <- function(x, ...) {
+  UseMethod("as_nmea")
+}
+
+#' @rdname nmea
+#' @export
+as_nmea.list <- function(x, ...) {
+  do.call(nmea, list(x))
+}
+
+#' @rdname nmea
+#' @export
+as_nmea.raw <- function(x, ...) {
+  as_nmea(list(x))
+}
+
+#' @rdname nmea
+#' @export
+as_nmea.character <- function(x, ...) {
+  new_nmea(.Call(nmea_c_character_as_nmea, x))
+}
+
+
+#' S3 Destails for the 'nmea' class
+#'
+#' @param x A `list()` of `raw()` or `NULL`.
+#'
+#' @return An object of class 'nmea'.
+#' @export
+#'
+new_nmea <- function(x = list()) {
+  vctrs::new_vctr(x, class = "nmea")
+}
+
+#' @rdname new_nmea
+#' @export
+validate_nmea <- function(x) {
+  # getting through the cpp11 format checks for raw/NULL
+  format(x)
+  invisible(x)
+}
+
+#' @export
+format.nmea <- function(x, ...) {
+  formatted <- cpp_nmea_as_character(x)
+  formatted[is.na(formatted)] <- "<NA>"
+  formatted
+}
+
+#' @importFrom vctrs obj_print_data
+#' @export
+obj_print_data.nmea <- function(x, ..., width = getOption("width")) {
+  formatted <- format(x)
+  cat(substr(formatted, 1, width), sep = "\n")
+}

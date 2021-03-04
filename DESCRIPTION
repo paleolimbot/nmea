@@ -21,3 +21,5 @@ Depends:
 LinkingTo: 
     cpp11
 SystemRequirements: C++11
+Imports: 
+    vctrs
