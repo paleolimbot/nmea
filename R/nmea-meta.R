@@ -1,42 +1,135 @@
 
-#' NMEA Sentence meta
+#' Extract NMEA components
 #'
-#' @param x A character vector
+#' @param x An [nmea()] object.
+#' @param start,end Zero-based to extract. Negative indices refer to values
+#'   from the end of the sentence.
 #'
-#' @return A data.frame with columns:
-#'   - `talker`: The two-letter talker identifier
-#'   - `message_type`: A character vector of the (usually three-letter)
-#'     message type identifier
-#'   - `talker_label`, `message_type_label`: Human-readable labels
-#'     whose value may change over time.
+#' @return A vector of the specified components
 #' @export
 #'
 #' @examples
+#' nmea_len(nmea_test_basic)
+#' nmea_sub(nmea_test_basic, 0, 6)
+#' nmea_sentence_id(nmea_test_basic)
+#' nmea_talker(nmea_test_basic)
+#' nmea_message_type(nmea_test_basic)
+#' nmea_talker_label(nmea_test_basic)
+#' nmea_message_type_label(nmea_test_basic)
+#' nmea_checksum(nmea_test_basic)
 #' nmea_meta(nmea_test_basic)
 #'
+nmea_len <- function(x) {
+  x <- as_nmea(x)
+  len <- vapply(x, length, integer(1))
+  len[is.na(x)] <- NA_integer_
+  len
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_sub <- function(x, start = 0L, end = -1L) {
+  x <- as_nmea(x)
+
+  recycled <- vctrs::vec_recycle_common(x, start, end)
+  x <- recycled[[1]]
+  start <- recycled[[2]]
+  end <- recycled[[3]]
+
+  len <- nmea_len(x)
+  start[start < 0L] <- len + start + 1
+  end[end < 0L] <- len + end + 1
+  end <- pmin(end, len)
+  start <- pmin(start, end)
+  result_len <- end - start
+  indices <- Map(":", start + 1, end)
+  indices[result_len == 0] <- list(integer())
+  new_nmea(Map("[", unclass(x), indices))
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_sentence_id <- function(x) {
+  chr <- as.character(as_nmea(x))
+  match <- regexpr("^[$!][^,\r\n]+", chr, useBytes = TRUE)
+  sentence_id <- character(length(chr))
+
+  sentence_id <- substr(chr, match + 1, match + attr(match, "match.length") - 1)
+  sentence_id[match == -1] <- NA_character_
+  sentence_id
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_talker <- function(x) {
+  sentence_id <- nmea_sentence_id(x)
+  talker <- substr(nmea_sentence_id(x), 1, 2)
+  talker[nchar(sentence_id) < 2] <- NA_character_
+  talker
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_message_type <- function(x) {
+  sentence_id <- nmea_sentence_id(x)
+  message_type <- substr(nmea_sentence_id(x), 3, nchar(sentence_id))
+  message_type[nchar(message_type) < 3] <- NA_character_
+  message_type
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_sentence_id <- function(x) {
+  chr <- as.character(as_nmea(x))
+  match <- regexpr("^[$!][^,\r\n]+", chr, useBytes = TRUE)
+  sentence_id <- character(length(chr))
+
+  sentence_id <- substr(chr, match + 1, match + attr(match, "match.length") - 1)
+  sentence_id[match == -1] <- NA_character_
+  sentence_id
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_talker_label <- function(x) {
+  nmea::nmea_talkers$talker_label[
+    match(nmea_talker(x), nmea::nmea_talkers$talker)
+  ]
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_message_type_label <- function(x) {
+  nmea::nmea_message_types$message_type_label[
+    match(nmea_message_type(x), nmea::nmea_message_types$message_type)
+  ]
+}
+
+#' @rdname nmea_len
+#' @export
+nmea_checksum <- function(x) {
+  chr <- as.character(as_nmea(x))
+  if (length(x) == 0) {
+    return(raw(0))
+  }
+
+  match <- regexpr("\\*[a-fA-F0-9]{2}\\s*$", chr, useBytes = TRUE)
+  hex <- paste0("0x", substr(chr, match + 1, match + 3))
+  hex[match == -1] <- NA_character_
+  as.raw(hex)
+}
+
+#' @rdname nmea_len
+#' @export
 nmea_meta <- function(x) {
-  match <- regexpr("^[$!][^,\r\n]+", x, useBytes = TRUE)
-  no_match <- match == -1
-
-  talker <- character(length(x))
-  message_type <- character(length(x))
-
-  talker[no_match] <- NA_character_
-  message_type[no_match] <- NA_character_
-
-  talker[!no_match] <- substr(x[!no_match], 2, 3)
-  message_type[!no_match] <- substr(x[!no_match], 4, attr(match, "match.length"))
-
+  x <- as_nmea(x)
   new_data_frame(
     list(
-      talker = talker,
-      message_type = message_type,
-      talker_label = nmea::nmea_talkers$talker_label[
-        match(talker, nmea::nmea_talkers$talker)
-      ],
-      message_type_label = nmea::nmea_message_types$message_type_label[
-        match(message_type, nmea::nmea_message_types$message_type)
-      ]
+      len = nmea_len(x),
+      sentence_id = nmea_sentence_id(x),
+      talker = nmea_talker(x),
+      message_type = nmea_message_type(x),
+      checksum = nmea_checksum(x)
     )
   )
 }

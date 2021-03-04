@@ -5,10 +5,10 @@
 #include "cpp11/declarations.hpp"
 
 // format-nmea.cpp
-strings cpp_nmea_as_character(list nmea);
-extern "C" SEXP _nmea_cpp_nmea_as_character(SEXP nmea) {
+strings cpp_nmea_as_character(list nmea, bool ascii);
+extern "C" SEXP _nmea_cpp_nmea_as_character(SEXP nmea, SEXP ascii) {
   BEGIN_CPP11
-    return cpp11::as_sexp(cpp_nmea_as_character(cpp11::as_cpp<cpp11::decay_t<list>>(nmea)));
+    return cpp11::as_sexp(cpp_nmea_as_character(cpp11::as_cpp<cpp11::decay_t<list>>(nmea), cpp11::as_cpp<cpp11::decay_t<bool>>(ascii)));
   END_CPP11
 }
 // parse-sentences.cpp
@@ -22,12 +22,12 @@ extern "C" SEXP _nmea_cpp_nmea_parse_sentences(SEXP obj, SEXP skip, SEXP n_max, 
 
 extern "C" {
 /* .Call calls */
-extern SEXP _nmea_cpp_nmea_as_character(SEXP);
+extern SEXP _nmea_cpp_nmea_as_character(SEXP, SEXP);
 extern SEXP _nmea_cpp_nmea_parse_sentences(SEXP, SEXP, SEXP, SEXP);
 extern SEXP nmea_c_character_as_nmea(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_nmea_cpp_nmea_as_character",    (DL_FUNC) &_nmea_cpp_nmea_as_character,    1},
+    {"_nmea_cpp_nmea_as_character",    (DL_FUNC) &_nmea_cpp_nmea_as_character,    2},
     {"_nmea_cpp_nmea_parse_sentences", (DL_FUNC) &_nmea_cpp_nmea_parse_sentences, 4},
     {"nmea_c_character_as_nmea",       (DL_FUNC) &nmea_c_character_as_nmea,       1},
     {NULL, NULL, 0}

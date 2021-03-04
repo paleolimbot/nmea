@@ -2,8 +2,6 @@
 % Please edit documentation in R/nmea-package.R
 \docType{package}
 \name{nmea-package}
-\alias{nmea}
-\alias{nmea-package}
 \title{nmea: Parse 'NMEA' Sentences}
 \description{
 Parse streams of bytes encoding National Marine Electronics

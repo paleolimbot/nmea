@@ -18,15 +18,26 @@
 #' as_nmea(list(charToRaw(nmea_test_basic[1])))
 #' as_nmea(charToRaw(nmea_test_basic[1]))
 #'
+#' # can include 0x00!
+#' nmea(list(as.raw(0x00)))
+#'
 nmea <- function(x = list()) {
   vctrs::vec_assert(x, list())
-  new_nmea(x)
+  nmea <- new_nmea(x)
+  validate_nmea(nmea)
+  nmea
 }
 
 #' @rdname nmea
 #' @export
 as_nmea <- function(x, ...) {
   UseMethod("as_nmea")
+}
+
+#' @rdname nmea
+#' @export
+as_nmea.nmea <- function(x, ...) {
+  x
 }
 
 #' @rdname nmea
@@ -68,8 +79,13 @@ validate_nmea <- function(x) {
 }
 
 #' @export
+as.character.nmea <- function(x, ...) {
+  cpp_nmea_as_character(x, ascii = TRUE)
+}
+
+#' @export
 format.nmea <- function(x, ...) {
-  formatted <- cpp_nmea_as_character(x)
+  formatted <- cpp_nmea_as_character(x, ascii = FALSE)
   formatted[is.na(formatted)] <- "<NA>"
   formatted
 }
