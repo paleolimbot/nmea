@@ -18,15 +18,11 @@
 #'   and including `sentence_start` before giving up on
 #'   finding `sentence_end`. The NMEA specification suggest the maximum length
 #'   is 82 characters, however extensions occasionally send longer
-#'   sentences. This values inludes both `sentence_start` and `sentence_end`.
+#'   sentences. This values includes both `sentence_start` and `sentence_end`.
 #' @param ... Unused
 #'
 #' @return An [nmea()] vector.
 #' @export
-#'
-#' @examples
-#' obj <- readr::read_file_raw("inst/extdata/basic.nmea")
-#' read_nmea(obj)
 #'
 read_nmea <- function(x, ..., sentence_start = c("$", "!"),
                       sentence_end = "\n", max_length = 82L) {
@@ -37,6 +33,8 @@ read_nmea <- function(x, ..., sentence_start = c("$", "!"),
 
   sentence_start <- paste0(sentence_start, collapse = "")
   result <- cpp_read_nmea(x, sentence_start, sentence_end, max_length)
+  result$sentence <- new_nmea(result$sentence)
+
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 

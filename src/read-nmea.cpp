@@ -41,18 +41,6 @@ private:
     R_xlen_t size;
 };
 
-class SourceConnection {
-public:
-    SourceConnection(sexp con): con(con) {}
-
-    size_t read(unsigned char* dst, size_t n_bytes) {
-        return 0;
-    }
-
-private:
-    sexp con;
-};
-
 std::unique_ptr<Source> nmea_get_source(SEXP obj) {
     if (TYPEOF(obj) == RAWSXP) {
         return std::unique_ptr<Source>(new SourceRaw(obj));
@@ -60,8 +48,6 @@ std::unique_ptr<Source> nmea_get_source(SEXP obj) {
         stop("Source must be a raw vector");
     }
 }
-
-
 
 class NMEAScanner {
 public:
@@ -109,7 +95,7 @@ public:
             return 0;
         }
 
-        char buffer;
+        char buffer = '\0';
         size_t n_skip = 0;
         do {
             peek_n(&buffer, 1);
@@ -191,6 +177,9 @@ list cpp_read_nmea(SEXP obj,
 
     writable::list sentences;
     writable::integers offsets;
+    sentences.reserve(10);
+    offsets.reserve(10);
+
     size_t offset = scanner.skip_until(sentence_start);
 
     while (!scanner.finished()) {
@@ -204,7 +193,6 @@ list cpp_read_nmea(SEXP obj,
         offset += (item.size() + n_skipped);
     }
     
-    sentences.attr("class") = {"nmea", "vctrs_vctr"};
     writable::list out = {offsets, sentences};
     out.names() = {"offset", "sentence"};
     

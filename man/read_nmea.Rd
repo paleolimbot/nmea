@@ -32,7 +32,7 @@ a often only a newline follows a sentence.}
 and including \code{sentence_start} before giving up on
 finding \code{sentence_end}. The NMEA specification suggest the maximum length
 is 82 characters, however extensions occasionally send longer
-sentences. This values inludes both \code{sentence_start} and \code{sentence_end}.}
+sentences. This values includes both \code{sentence_start} and \code{sentence_end}.}
 }
 \value{
 An \code{\link[=nmea]{nmea()}} vector.
@@ -40,9 +40,4 @@ An \code{\link[=nmea]{nmea()}} vector.
 \description{
 For well-formed NMEA, existing tools for reading text are likely more
 useful
-}
-\examples{
-obj <- readr::read_file_raw("inst/extdata/basic.nmea")
-read_nmea(obj)
-
 }

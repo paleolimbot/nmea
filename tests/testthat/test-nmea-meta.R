@@ -24,7 +24,7 @@ test_that("nmea extractors work for character vectors", {
 
   expect_vector(
     nmea_meta(x),
-    data.frame(
+    tibble::tibble(
       len = integer(),
       sentence_id = character(),
       talker = character(),

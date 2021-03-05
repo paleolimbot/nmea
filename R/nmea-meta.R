@@ -121,7 +121,7 @@ nmea_message_type_label <- function(x) {
 nmea_checksum <- function(x) {
   chr <- as.character(x)
   match <- regexpr("\\*[a-fA-F0-9]{2}\\s*$", chr, useBytes = TRUE)
-  hex <- substr(chr, match + 1, match + 3)
+  hex <- substr(chr, match + 1, match + 2)
   hex[match == -1] <- NA_character_
   hex
 }
@@ -129,13 +129,13 @@ nmea_checksum <- function(x) {
 #' @rdname nmea_len
 #' @export
 nmea_meta <- function(x) {
-  new_data_frame(
-    list(
-      len = nmea_len(x),
-      sentence_id = nmea_sentence_id(x),
-      talker = nmea_talker(x),
-      message_type = nmea_message_type(x),
-      checksum = nmea_checksum(x)
-    )
+  result <- list(
+    len = nmea_len(x),
+    sentence_id = nmea_sentence_id(x),
+    talker = nmea_talker(x),
+    message_type = nmea_message_type(x),
+    checksum = nmea_checksum(x)
   )
+
+  tibble::new_tibble(result, nrow = length(result[[1]]))
 }
