@@ -35,6 +35,10 @@ strings cpp_nmea_as_character(list nmea, bool ascii) {
                 c = item[j];
                 if (c >= min_char && c <= max_char) {
                     stream << c;
+                } else if (c == '\n') {
+                    stream << "\\n";
+                } else if(c == '\r') {
+                    stream << "\\r";
                 } else {
                     stream << "\\" << std::setfill('0') << std::setw(3) << ((int) c);
                 }

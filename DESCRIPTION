@@ -22,7 +22,8 @@ LinkingTo:
     cpp11
 SystemRequirements: C++11
 Imports: 
-    vctrs
+    vctrs,
+    tibble
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

@@ -25,23 +25,18 @@
 #' @export
 #'
 #' @examples
+#' obj <- readr::read_file_raw("inst/extdata/basic.nmea")
 #' read_nmea(obj)
 #'
-read_nmea <- function(x, ...) {
-  UseMethod("read_nmea")
-}
-
-#' @rdname read_nmea
-#' @export
-read_nmea.default <- function(x, ..., sentence_start = c("$", "!"),
-                              sentence_end = "\n",
-                              max_length = 82L) {
+read_nmea <- function(x, ..., sentence_start = c("$", "!"),
+                      sentence_end = "\n", max_length = 82L) {
   stopifnot(
     all(nchar(sentence_start) == 1), length(sentence_start) > 0,
     length(sentence_end) == 1
   )
 
   sentence_start <- paste0(sentence_start, collapse = "")
-  cpp_read_nmea(x, sentence_start, sentence_end, max_length)
+  result <- cpp_read_nmea(x, sentence_start, sentence_end, max_length)
+  tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 

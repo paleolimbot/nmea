@@ -9,11 +9,9 @@ namespace writable = cpp11::writable;
 class Source {
 public:
     virtual ~Source() {}
-    virtual void open() {}
     virtual size_t read(unsigned char* dst, size_t n_bytes) {
         return 0;
     }
-    virtual void close() {}
 };
 
 class SourceRaw: public Source {
@@ -21,6 +19,7 @@ public:
     SourceRaw(raws src): src(src), data(RAW(src.data())), offset(0), size(src.size()) {}
 
     size_t read(unsigned char* dst, size_t n_bytes) {
+        check_user_interrupt();
         R_xlen_t new_offset = offset + n_bytes;
         if (new_offset >= size) {
             new_offset = size;
@@ -30,6 +29,7 @@ public:
         if (n_cpy > 0) {
             memcpy(dst, data + offset, n_cpy);
         }
+        this->offset = new_offset;
 
         return n_cpy;
     }
@@ -39,6 +39,18 @@ private:
     unsigned char* data;
     R_xlen_t offset;
     R_xlen_t size;
+};
+
+class SourceConnection {
+public:
+    SourceConnection(sexp con): con(con) {}
+
+    size_t read(unsigned char* dst, size_t n_bytes) {
+        return 0;
+    }
+
+private:
+    sexp con;
 };
 
 std::unique_ptr<Source> nmea_get_source(SEXP obj) {
@@ -55,33 +67,36 @@ class NMEAScanner {
 public:
   NMEAScanner(Source* src, size_t buffer_size):
     src(src), 
-    chars_vector(buffer_size),
     current_buffer_size(0), 
     buffer_size(buffer_size), 
     offset(0) {
-      this->str = this->chars_vector.data();
+      this->str = (char*) malloc(buffer_size);
+    }
+
+    ~NMEAScanner() {
+        free(this->str);
     }
 
     std::string read_until(const std::string& needle, size_t max_size) {
-        if (needle.size() == 0) {
-            return std::string("");
+        size_t needle_size = needle.size();
+        if ((needle_size == 0) || (needle_size > 255)) {
+            stop("needle size must be between 1 and 255");
         }
 
-        size_t max_read = max_size - needle.size();
-        std::vector<char> buffer(needle.size());
+        size_t max_read = max_size - needle_size;
+        char buffer[256];
+        memset(buffer, 0, 256);
         std::stringstream out;
 
-        for (size_t n_read = 0; n_read < max_read; n_read++) {
-            size_t n_read_buf = peek_n(buffer.data(), buffer.size());
-            if (n_read_buf != buffer.size()) {
-                out << std::string(buffer.data(), n_read_buf);
-                break;
-            }
+        for (size_t n_read = 0; n_read <= max_read; n_read++) {
+            size_t n_read_buf = peek_n(buffer, needle_size);
 
-            if (needle == buffer.data()) {
-                out << buffer.data();
+            if ((needle == buffer) || (n_read_buf != needle_size) || (n_read == max_read)) {
+                out << std::string(buffer, n_read_buf);
+                this->offset += n_read_buf;
                 break;
             } else {
+                out << buffer[0];
                 this->offset++;
             }
         }
@@ -98,18 +113,19 @@ public:
         size_t n_skip = 0;
         do {
             peek_n(&buffer, 1);
-            for (char c: needle) {
-                if (buffer == c) {
-                    break;
+            for (size_t i = 0; i < needle.size(); i++) {
+                if (buffer == needle[i]) {
+                    return n_skip;
                 }
             }
+            n_skip++;
         } while(this->advance());
        
         return n_skip;
     }
 
     size_t peek_n(char* dest, size_t n) {
-        if ((this->offset + n) >= this->current_buffer_size) {
+        if ((this->offset + n) > this->current_buffer_size) {
             size_t n_read = this->get_more_from_source(this->current_buffer_size - this->offset);
             if (n_read < n) {
                 n = n_read;
@@ -156,8 +172,6 @@ public:
 private:
     // a Source from which to read more data
     Source* src;
-    // protects the memory for the underlying str buffer
-    std::vector<char> chars_vector;
     // the current buffer
     char* str;
     // total number of valid characters in the current buffer
@@ -170,18 +184,29 @@ private:
 
 [[cpp11::register]]
 list cpp_read_nmea(SEXP obj, 
-                   std::string senetence_start, std::string sentence_end,
+                   std::string sentence_start, std::string sentence_end,
                    int max_length) {
     std::unique_ptr<Source> src = nmea_get_source(obj);
     NMEAScanner scanner(src.get(), 8096);
 
-    writable::list out;
+    writable::list sentences;
+    writable::integers offsets;
+    size_t offset = scanner.skip_until(sentence_start);
 
-    scanner.skip_until(senetence_start);
-    std::string item = scanner.read_until(sentence_end, max_length);
-    writable::raws item_raw(item);
-    out.push_back(item_raw);
+    while (!scanner.finished()) {
+        std::string item = scanner.read_until(sentence_end, max_length);
 
-    out.attr("class") = {"nmea", "vctrs_vctr"};
+        writable::raws item_raw(item);
+        sentences.push_back(item_raw);
+        offsets.push_back(offset);
+
+        size_t n_skipped = scanner.skip_until(sentence_start);
+        offset += (item.size() + n_skipped);
+    }
+    
+    sentences.attr("class") = {"nmea", "vctrs_vctr"};
+    writable::list out = {offsets, sentences};
+    out.names() = {"offset", "sentence"};
+    
     return out;
 }

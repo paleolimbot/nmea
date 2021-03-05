@@ -2,28 +2,27 @@
 % Please edit documentation in R/read-nmea.R
 \name{read_nmea}
 \alias{read_nmea}
-\alias{read_nmea.default}
 \title{Extract NMEA sentences}
 \usage{
-read_nmea(x, ...)
-
-\method{read_nmea}{default}(
+read_nmea(
   x,
   ...,
   sentence_start = c("$", "!"),
-  sentence_end = c("\\r\\n", "\\n"),
+  sentence_end = "\\n",
   max_length = 82L
 )
 }
 \arguments{
-\item{x}{An object from which to extract NMEA sentences}
+\item{x}{An object from which to extract NMEA sentences. For the default
+method this can be a \code{raw()} vector, a filename, a URL, or
+a connection.}
 
 \item{...}{Unused}
 
-\item{sentence_start}{A vector of possible sequences that denote
-the start of a sentence.}
+\item{sentence_start}{A vector of possible characters that denote
+the start of a sentence. These must be a single character.}
 
-\item{sentence_end}{A vector of possible sequences that denote the
+\item{sentence_end}{A sequence that denotes the
 end of a sentence. The NMEA specification suggests that sentences
 always end with a carriage return (\\r) and a new line (\\n);
 however, because these files are opened and saved on various systems,
@@ -41,4 +40,9 @@ An \code{\link[=nmea]{nmea()}} vector.
 \description{
 For well-formed NMEA, existing tools for reading text are likely more
 useful
+}
+\examples{
+obj <- readr::read_file_raw("inst/extdata/basic.nmea")
+read_nmea(obj)
+
 }
