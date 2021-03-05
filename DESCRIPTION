@@ -23,3 +23,6 @@ LinkingTo:
 SystemRequirements: C++11
 Imports: 
     vctrs
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

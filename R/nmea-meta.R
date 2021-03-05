@@ -20,8 +20,13 @@
 #' nmea_meta(nmea_test_basic)
 #'
 nmea_len <- function(x) {
-  x <- as_nmea(x)
-  len <- vapply(x, length, integer(1))
+  if (is.character(x)) {
+    len <- nchar(x)
+  } else {
+    x <- as_nmea(x)
+    len <- vapply(x, length, integer(1))
+  }
+
   len[is.na(x)] <- NA_integer_
   len
 }
@@ -29,8 +34,6 @@ nmea_len <- function(x) {
 #' @rdname nmea_len
 #' @export
 nmea_sub <- function(x, start = 0L, end = -1L) {
-  x <- as_nmea(x)
-
   recycled <- vctrs::vec_recycle_common(x, start, end)
   x <- recycled[[1]]
   start <- recycled[[2]]
@@ -42,15 +45,23 @@ nmea_sub <- function(x, start = 0L, end = -1L) {
   end <- pmin(end, len)
   start <- pmin(start, end)
   result_len <- end - start
-  indices <- Map(":", start + 1, end)
-  indices[result_len == 0] <- list(integer())
-  new_nmea(Map("[", unclass(x), indices))
+
+  if (is.character(x)) {
+    result <- substr(x, start + 1, end)
+    result[result_len == 0] <- ""
+    result
+  } else {
+    x <- as_nmea(x)
+    indices <- Map(":", start + 1, end)
+    indices[result_len == 0] <- list(integer())
+    new_nmea(Map("[", unclass(x), indices))
+  }
 }
 
 #' @rdname nmea_len
 #' @export
 nmea_sentence_id <- function(x) {
-  chr <- as.character(as_nmea(x))
+  chr <- as.character(x)
   match <- regexpr("^[$!][^,\r\n]+", chr, useBytes = TRUE)
   sentence_id <- character(length(chr))
 
@@ -80,7 +91,7 @@ nmea_message_type <- function(x) {
 #' @rdname nmea_len
 #' @export
 nmea_sentence_id <- function(x) {
-  chr <- as.character(as_nmea(x))
+  chr <- as.character(x)
   match <- regexpr("^[$!][^,\r\n]+", chr, useBytes = TRUE)
   sentence_id <- character(length(chr))
 
@@ -108,21 +119,16 @@ nmea_message_type_label <- function(x) {
 #' @rdname nmea_len
 #' @export
 nmea_checksum <- function(x) {
-  chr <- as.character(as_nmea(x))
-  if (length(x) == 0) {
-    return(raw(0))
-  }
-
+  chr <- as.character(x)
   match <- regexpr("\\*[a-fA-F0-9]{2}\\s*$", chr, useBytes = TRUE)
-  hex <- paste0("0x", substr(chr, match + 1, match + 3))
+  hex <- substr(chr, match + 1, match + 3)
   hex[match == -1] <- NA_character_
-  as.raw(hex)
+  hex
 }
 
 #' @rdname nmea_len
 #' @export
 nmea_meta <- function(x) {
-  x <- as_nmea(x)
   new_data_frame(
     list(
       len = nmea_len(x),

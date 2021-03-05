@@ -3,7 +3,9 @@
 #'
 #' Most NMEA sentences are valid ASCII text. Some, however, contain embedded
 #' nul characters as part of their structure and can't be represented by
-#' a `character()`.
+#' a `character()`. For most NMEA text you probably don't need this class
+#' (just read the file as lines and pass to the other functions in
+#' this package).
 #'
 #' @param x An object to be converted to one or more NMEA sentences
 #' @param ... Unused
