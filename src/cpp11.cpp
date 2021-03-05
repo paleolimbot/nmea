@@ -11,25 +11,24 @@ extern "C" SEXP _nmea_cpp_nmea_as_character(SEXP nmea, SEXP ascii) {
     return cpp11::as_sexp(cpp_nmea_as_character(cpp11::as_cpp<cpp11::decay_t<list>>(nmea), cpp11::as_cpp<cpp11::decay_t<bool>>(ascii)));
   END_CPP11
 }
-// parse-sentences.cpp
-void cpp_nmea_parse_sentences(SEXP obj, int skip, double n_max, double sentence_max_length);
-extern "C" SEXP _nmea_cpp_nmea_parse_sentences(SEXP obj, SEXP skip, SEXP n_max, SEXP sentence_max_length) {
+// read-nmea.cpp
+list cpp_read_nmea(SEXP obj, std::string senetence_start, std::string sentence_end, int max_length);
+extern "C" SEXP _nmea_cpp_read_nmea(SEXP obj, SEXP senetence_start, SEXP sentence_end, SEXP max_length) {
   BEGIN_CPP11
-    cpp_nmea_parse_sentences(cpp11::as_cpp<cpp11::decay_t<SEXP>>(obj), cpp11::as_cpp<cpp11::decay_t<int>>(skip), cpp11::as_cpp<cpp11::decay_t<double>>(n_max), cpp11::as_cpp<cpp11::decay_t<double>>(sentence_max_length));
-    return R_NilValue;
+    return cpp11::as_sexp(cpp_read_nmea(cpp11::as_cpp<cpp11::decay_t<SEXP>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(senetence_start), cpp11::as_cpp<cpp11::decay_t<std::string>>(sentence_end), cpp11::as_cpp<cpp11::decay_t<int>>(max_length)));
   END_CPP11
 }
 
 extern "C" {
 /* .Call calls */
 extern SEXP _nmea_cpp_nmea_as_character(SEXP, SEXP);
-extern SEXP _nmea_cpp_nmea_parse_sentences(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _nmea_cpp_read_nmea(SEXP, SEXP, SEXP, SEXP);
 extern SEXP nmea_c_character_as_nmea(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_nmea_cpp_nmea_as_character",    (DL_FUNC) &_nmea_cpp_nmea_as_character,    2},
-    {"_nmea_cpp_nmea_parse_sentences", (DL_FUNC) &_nmea_cpp_nmea_parse_sentences, 4},
-    {"nmea_c_character_as_nmea",       (DL_FUNC) &nmea_c_character_as_nmea,       1},
+    {"_nmea_cpp_nmea_as_character", (DL_FUNC) &_nmea_cpp_nmea_as_character, 2},
+    {"_nmea_cpp_read_nmea",         (DL_FUNC) &_nmea_cpp_read_nmea,         4},
+    {"nmea_c_character_as_nmea",    (DL_FUNC) &nmea_c_character_as_nmea,    1},
     {NULL, NULL, 0}
 };
 }

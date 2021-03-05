@@ -4,6 +4,6 @@ cpp_nmea_as_character <- function(nmea, ascii) {
   .Call(`_nmea_cpp_nmea_as_character`, nmea, ascii)
 }
 
-cpp_nmea_parse_sentences <- function(obj, skip, n_max, sentence_max_length) {
-  invisible(.Call(`_nmea_cpp_nmea_parse_sentences`, obj, skip, n_max, sentence_max_length))
+cpp_read_nmea <- function(obj, senetence_start, sentence_end, max_length) {
+  .Call(`_nmea_cpp_read_nmea`, obj, senetence_start, sentence_end, max_length)
 }
