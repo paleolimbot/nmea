@@ -4,20 +4,27 @@
 #' @param x An [nmea()] object.
 #' @param start,end Zero-based to extract. Negative indices refer to values
 #'   from the end of the sentence.
+#' @param names Names to assign to fields or `NULL` to use a noisily
+#'   assigned default.
+#' @param split_chars A character vector of split characters that delineate
+#'   fields.
 #'
 #' @return A vector of the specified components
 #' @export
 #'
 #' @examples
 #' nmea_length(nmea_test_basic)
-#' nmea_sub(nmea_test_basic, 0, 6)
 #' nmea_sentence_id(nmea_test_basic)
 #' nmea_talker(nmea_test_basic)
 #' nmea_message_type(nmea_test_basic)
 #' nmea_talker_label(nmea_test_basic)
 #' nmea_message_type_label(nmea_test_basic)
 #' nmea_checksum(nmea_test_basic)
+#'
 #' nmea_meta(nmea_test_basic)
+#'
+#' nmea_sub(nmea_test_basic, 0, 6)
+#' nmea_split_fields(nmea_test_basic)
 #'
 nmea_length <- function(x) {
   if (is.character(x)) {
@@ -29,6 +36,28 @@ nmea_length <- function(x) {
 
   len[is.na(x)] <- NA_integer_
   len
+}
+
+#' @rdname nmea_length
+#' @export
+nmea_split_fields <- function(x, names = NULL, split_chars = c(",", "*")) {
+  stopifnot(all(nchar(split_chars) == 1))
+  split_chars <- paste0(split_chars, collapse = "")
+
+  result <- lapply(cpp_nmea_split(as_nmea(x), split_chars), new_nmea)
+
+  result <- if (is.character(x)) {
+    lapply(result, as.character.nmea)
+  } else {
+    lapply(result, new_nmea)
+  }
+
+  if (is.null(names)) {
+    names <- rep("", length(result))
+  }
+
+  names(result) <- vctrs::vec_as_names(names[seq_along(result)], repair = "unique")
+  tibble::new_tibble(result, nrow = length(x))
 }
 
 #' @rdname nmea_length

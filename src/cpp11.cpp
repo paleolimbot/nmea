@@ -11,6 +11,13 @@ extern "C" SEXP _nmea_cpp_nmea_as_character(SEXP nmea, SEXP ascii) {
     return cpp11::as_sexp(cpp_nmea_as_character(cpp11::as_cpp<cpp11::decay_t<list>>(nmea), cpp11::as_cpp<cpp11::decay_t<bool>>(ascii)));
   END_CPP11
 }
+// nmea-split.cpp
+list cpp_nmea_split(list nmea, std::string split_chars);
+extern "C" SEXP _nmea_cpp_nmea_split(SEXP nmea, SEXP split_chars) {
+  BEGIN_CPP11
+    return cpp11::as_sexp(cpp_nmea_split(cpp11::as_cpp<cpp11::decay_t<list>>(nmea), cpp11::as_cpp<cpp11::decay_t<std::string>>(split_chars)));
+  END_CPP11
+}
 // read-nmea.cpp
 list cpp_read_nmea(list obj, std::string sentence_start, std::string sentence_end, int max_length);
 extern "C" SEXP _nmea_cpp_read_nmea(SEXP obj, SEXP sentence_start, SEXP sentence_end, SEXP max_length) {
@@ -22,11 +29,13 @@ extern "C" SEXP _nmea_cpp_read_nmea(SEXP obj, SEXP sentence_start, SEXP sentence
 extern "C" {
 /* .Call calls */
 extern SEXP _nmea_cpp_nmea_as_character(SEXP, SEXP);
+extern SEXP _nmea_cpp_nmea_split(SEXP, SEXP);
 extern SEXP _nmea_cpp_read_nmea(SEXP, SEXP, SEXP, SEXP);
 extern SEXP nmea_c_character_as_nmea(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_nmea_cpp_nmea_as_character", (DL_FUNC) &_nmea_cpp_nmea_as_character, 2},
+    {"_nmea_cpp_nmea_split",        (DL_FUNC) &_nmea_cpp_nmea_split,        2},
     {"_nmea_cpp_read_nmea",         (DL_FUNC) &_nmea_cpp_read_nmea,         4},
     {"nmea_c_character_as_nmea",    (DL_FUNC) &nmea_c_character_as_nmea,    1},
     {NULL, NULL, 0}

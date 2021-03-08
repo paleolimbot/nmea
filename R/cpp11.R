@@ -4,6 +4,10 @@ cpp_nmea_as_character <- function(nmea, ascii) {
   .Call(`_nmea_cpp_nmea_as_character`, nmea, ascii)
 }
 
+cpp_nmea_split <- function(nmea, split_chars) {
+  .Call(`_nmea_cpp_nmea_split`, nmea, split_chars)
+}
+
 cpp_read_nmea <- function(obj, sentence_start, sentence_end, max_length) {
   .Call(`_nmea_cpp_read_nmea`, obj, sentence_start, sentence_end, max_length)
 }

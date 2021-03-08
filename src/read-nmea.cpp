@@ -2,10 +2,6 @@
 using namespace cpp11;
 namespace writable = cpp11::writable;
 
-#include <memory>
-#include <vector>
-#include <sstream>
-
 #include "nmea/source.hpp"
 
 std::unique_ptr<Source> nmea_get_source(list src) {
