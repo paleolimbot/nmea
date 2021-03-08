@@ -41,3 +41,8 @@ An \code{\link[=nmea]{nmea()}} vector.
 For well-formed NMEA, existing tools for reading text are likely more
 useful
 }
+\examples{
+file <- system.file("extdata/basic.nmea", package = "nmea")
+read_nmea(file)
+
+}

@@ -12,10 +12,10 @@ extern "C" SEXP _nmea_cpp_nmea_as_character(SEXP nmea, SEXP ascii) {
   END_CPP11
 }
 // read-nmea.cpp
-list cpp_read_nmea(SEXP obj, std::string sentence_start, std::string sentence_end, int max_length);
+list cpp_read_nmea(list obj, std::string sentence_start, std::string sentence_end, int max_length);
 extern "C" SEXP _nmea_cpp_read_nmea(SEXP obj, SEXP sentence_start, SEXP sentence_end, SEXP max_length) {
   BEGIN_CPP11
-    return cpp11::as_sexp(cpp_read_nmea(cpp11::as_cpp<cpp11::decay_t<SEXP>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(sentence_start), cpp11::as_cpp<cpp11::decay_t<std::string>>(sentence_end), cpp11::as_cpp<cpp11::decay_t<int>>(max_length)));
+    return cpp11::as_sexp(cpp_read_nmea(cpp11::as_cpp<cpp11::decay_t<list>>(obj), cpp11::as_cpp<cpp11::decay_t<std::string>>(sentence_start), cpp11::as_cpp<cpp11::decay_t<std::string>>(sentence_end), cpp11::as_cpp<cpp11::decay_t<int>>(max_length)));
   END_CPP11
 }
 

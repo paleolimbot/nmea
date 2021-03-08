@@ -1,4 +1,14 @@
 
+test_that("read_nmea() can use filenames, raw vectors, or connections", {
+  file <- system.file("extdata/basic.nmea", package = "nmea")
+  file_con <- file(file, open = "rb")
+  file_raw <- readBin(file_con, raw(), n = file.size(file))
+  close(file_con)
+
+  expect_identical(read_nmea(file), read_nmea(file_raw))
+
+})
+
 test_that("read_nmea() regenerates nmea_test_basic", {
   file <- system.file("extdata/basic.nmea", package = "nmea")
   file_con <- file(file, open = "rb")

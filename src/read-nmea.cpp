@@ -41,9 +41,31 @@ private:
     R_xlen_t size;
 };
 
-std::unique_ptr<Source> nmea_get_source(SEXP obj) {
-    if (TYPEOF(obj) == RAWSXP) {
-        return std::unique_ptr<Source>(new SourceRaw(obj));
+class SourceConnection: public Source {
+public:
+    SourceConnection(sexp con): con(con) {}
+
+    size_t read(unsigned char* dst, size_t n_bytes) {
+        auto readBin = cpp11::package("base")["readBin"];
+        raws vals(readBin(con, "raw", n_bytes));
+        if (vals.size() > 0) {
+            memcpy(dst, RAW(vals), vals.size());
+        }
+
+        return vals.size();
+    }
+
+private:
+    sexp con;
+};
+
+std::unique_ptr<Source> nmea_get_source(list src) {
+    sexp obj = src["obj"];
+
+    if (Rf_inherits(src, "nmea_src_raw")) {
+        return std::unique_ptr<Source>(new SourceRaw((raws) obj));
+    } else if (Rf_inherits(src, "nmea_src_connection")) {
+        return std::unique_ptr<Source>(new SourceConnection(obj));
     } else {
         stop("Source must be a raw vector");
     }
@@ -125,7 +147,7 @@ public:
         return n;
     }
 
-    size_t get_more_from_source(size_t keeping = 0) {
+    inline size_t get_more_from_source(size_t keeping = 0) {
         if (keeping > 0) {
             memmove(this->str, this->str + offset, keeping);
         }
@@ -138,7 +160,7 @@ public:
         return this->current_buffer_size;
     }
 
-    bool advance() {
+    inline bool advance() {
         if (!this->finished()) {
             this->offset++;
             return true;
@@ -147,7 +169,7 @@ public:
         }
     }
 
-    bool finished() {
+    inline bool finished() {
         if (this->offset < this->current_buffer_size) {
             return false;
         } else {
@@ -169,11 +191,13 @@ private:
 };
 
 [[cpp11::register]]
-list cpp_read_nmea(SEXP obj, 
+list cpp_read_nmea(list obj,
                    std::string sentence_start, std::string sentence_end,
                    int max_length) {
     std::unique_ptr<Source> src = nmea_get_source(obj);
-    NMEAScanner scanner(src.get(), 8096);
+
+    // 65536 is what readr:::read_connection() uses by default
+    NMEAScanner scanner(src.get(), 65536);
 
     writable::list sentences;
     writable::integers offsets;

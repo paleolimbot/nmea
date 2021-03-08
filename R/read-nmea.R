@@ -24,6 +24,10 @@
 #' @return An [nmea()] vector.
 #' @export
 #'
+#' @examples
+#' file <- system.file("extdata/basic.nmea", package = "nmea")
+#' read_nmea(file)
+#'
 read_nmea <- function(x, ..., sentence_start = c("$", "!"),
                       sentence_end = "\n", max_length = 82L) {
   stopifnot(
@@ -31,10 +35,59 @@ read_nmea <- function(x, ..., sentence_start = c("$", "!"),
     length(sentence_end) == 1
   )
 
+  src <- nmea_src(x)
+  nmea_src_open(src)
+  on.exit(nmea_src_close(src))
+
   sentence_start <- paste0(sentence_start, collapse = "")
-  result <- cpp_read_nmea(x, sentence_start, sentence_end, max_length)
+  result <- cpp_read_nmea(src, sentence_start, sentence_end, max_length)
   result$sentence <- new_nmea(result$sentence)
 
   tibble::new_tibble(result, nrow = length(result[[1]]))
 }
 
+nmea_src <- function(x) {
+  if (inherits(x, "connection")) {
+    structure(
+      list(obj = x, manage = !isOpen(x)),
+      class = "nmea_src_connection"
+    )
+  } else if (is.character(x) && (length(x) == 1)) {
+    structure(
+      list(obj = file(x, open = "rb"), manage = TRUE),
+      class = "nmea_src_connection"
+    )
+  } else if (is.raw(x)) {
+    structure(list(obj = x), class = "nmea_src_raw")
+  } else {
+    stop("`x` must be a filename, connection, or raw vector", call. = FALSE)
+  }
+}
+
+nmea_src_open <- function(x) {
+  UseMethod("nmea_src_open")
+}
+
+nmea_src_open.default <- function(x) {
+
+}
+
+nmea_src_open.nmea_src_connection <- function(x) {
+  if (x$manage && !isOpen(x$obj)) {
+    open(x$obj, open = "rb")
+  }
+}
+
+nmea_src_close <- function(x) {
+  UseMethod("nmea_src_close")
+}
+
+nmea_src_close.default <- function(x) {
+
+}
+
+nmea_src_close.nmea_src_connection <- function(x) {
+  if (x$manage) {
+    close(x$obj)
+  }
+}
