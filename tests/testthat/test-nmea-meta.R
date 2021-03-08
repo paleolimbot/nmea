@@ -2,7 +2,7 @@
 test_that("nmea extractors work for character vectors", {
   x <- nmea_test_basic
 
-  expect_identical(nmea_len(x), nchar(x))
+  expect_identical(nmea_length(x), nchar(x))
 
   expect_identical(nmea_sub(x, 0, 6), substr(x, 1,6))
   expect_identical(nmea_sentence_id(x), substr(x, 2, 6))
@@ -38,7 +38,7 @@ test_that("nmea extractors work for nmea objects", {
   x <- as_nmea(nmea_test_basic)
   chr <- nmea_test_basic
 
-  expect_identical(nmea_len(x), nmea_len(chr))
+  expect_identical(nmea_length(x), nmea_length(chr))
   expect_identical(nmea_sub(x, 0, 6), as_nmea(nmea_sub(chr, 0, 6)))
   expect_identical(nmea_sentence_id(x), nmea_sentence_id(chr))
   expect_identical(nmea_talker(x), nmea_talker(chr))
@@ -48,7 +48,7 @@ test_that("nmea extractors work for nmea objects", {
 })
 
 test_that("nmea extractors work for NA_character_", {
-  expect_identical(nmea_len(NA_character_), NA_integer_)
+  expect_identical(nmea_length(NA_character_), NA_integer_)
   expect_identical(nmea_sub(NA_character_, 0, 6), NA_character_)
   expect_identical(nmea_sentence_id(NA_character_), NA_character_)
   expect_identical(nmea_talker(NA_character_), NA_character_)

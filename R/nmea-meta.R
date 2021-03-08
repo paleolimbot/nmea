@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-#' nmea_len(nmea_test_basic)
+#' nmea_length(nmea_test_basic)
 #' nmea_sub(nmea_test_basic, 0, 6)
 #' nmea_sentence_id(nmea_test_basic)
 #' nmea_talker(nmea_test_basic)
@@ -19,7 +19,7 @@
 #' nmea_checksum(nmea_test_basic)
 #' nmea_meta(nmea_test_basic)
 #'
-nmea_len <- function(x) {
+nmea_length <- function(x) {
   if (is.character(x)) {
     len <- nchar(x)
   } else {
@@ -31,7 +31,7 @@ nmea_len <- function(x) {
   len
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_sub <- function(x, start = 0L, end = -1L) {
   recycled <- vctrs::vec_recycle_common(x, start, end)
@@ -39,7 +39,7 @@ nmea_sub <- function(x, start = 0L, end = -1L) {
   start <- recycled[[2]]
   end <- recycled[[3]]
 
-  len <- nmea_len(x)
+  len <- nmea_length(x)
   start[start < 0L] <- len + start + 1
   end[end < 0L] <- len + end + 1
   end <- pmin(end, len)
@@ -58,7 +58,7 @@ nmea_sub <- function(x, start = 0L, end = -1L) {
   }
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_sentence_id <- function(x) {
   chr <- as.character(x)
@@ -70,7 +70,7 @@ nmea_sentence_id <- function(x) {
   sentence_id
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_talker <- function(x) {
   sentence_id <- nmea_sentence_id(x)
@@ -79,7 +79,7 @@ nmea_talker <- function(x) {
   talker
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_message_type <- function(x) {
   sentence_id <- nmea_sentence_id(x)
@@ -88,7 +88,7 @@ nmea_message_type <- function(x) {
   message_type
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_sentence_id <- function(x) {
   chr <- as.character(x)
@@ -100,7 +100,7 @@ nmea_sentence_id <- function(x) {
   sentence_id
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_talker_label <- function(x) {
   nmea::nmea_talkers$talker_label[
@@ -108,7 +108,7 @@ nmea_talker_label <- function(x) {
   ]
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_message_type_label <- function(x) {
   nmea::nmea_message_types$message_type_label[
@@ -116,7 +116,7 @@ nmea_message_type_label <- function(x) {
   ]
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_checksum <- function(x) {
   chr <- as.character(x)
@@ -126,11 +126,11 @@ nmea_checksum <- function(x) {
   hex
 }
 
-#' @rdname nmea_len
+#' @rdname nmea_length
 #' @export
 nmea_meta <- function(x) {
   result <- list(
-    len = nmea_len(x),
+    len = nmea_length(x),
     sentence_id = nmea_sentence_id(x),
     talker = nmea_talker(x),
     message_type = nmea_message_type(x),

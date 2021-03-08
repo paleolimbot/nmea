@@ -21,7 +21,7 @@ test_that("read_nmea() max_length works", {
   full_size <- read_nmea(test_raw)
 
   expect_identical(abbrev$offset, full_size$offset)
-  expect_true(all(nmea_len(abbrev$sentence) == 10))
+  expect_true(all(nmea_length(abbrev$sentence) == 10))
 })
 
 test_that("read_nmea() can read an empty file", {
