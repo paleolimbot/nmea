@@ -67,6 +67,22 @@ test_that("nmea_extract() warns on bad parse", {
   )
 })
 
+test_that("nmea_extract() works when there are too many fields in the spec", {
+  expect_named(
+    nmea_extract(
+      "$GPRTE,1,1,c,*37",
+      spec = nmea_spec(
+        col1 = nmea_col_character(),
+        col2 = nmea_col_character(),
+        col3 = nmea_col_character(),
+        col4 = nmea_col_character(),
+        col5 = nmea_col_character()
+      )
+    ),
+    c("checksum_valid", "sentence_id", "col1", "col2", "col3", "col4")
+  )
+})
+
 test_that("nmea_split_fields() works", {
   expect_identical(
     nmea_split_fields("a,b,c", names = c("a", "b", "c")),

@@ -69,14 +69,17 @@ nmea_extract <- function(x, spec = nmea_spec_default(x), quiet = TRUE) {
 
   for (type in unique_sentence_id) {
     type_spec <- spec[[type]]
-    if (length(type_spec) == 0) {
+    common_cols <- seq_len(min(length(type_spec), length(split)))
+    if (length(common_cols) == 0) {
       next
     }
 
     if (!quiet) message(sprintf("Extracting '%s'", type))
 
+    type_spec <- type_spec[common_cols]
     type_match <- sentence_id == type
-    split_filter <- Map("[", split[seq_along(type_spec)], list(type_match))
+
+    split_filter <- Map("[", split[common_cols], list(type_match))
     split_values <- Map(nmea_col_parse, type_spec, split_filter, names(type_spec))
     names(split_values) <- names(type_spec)
 
