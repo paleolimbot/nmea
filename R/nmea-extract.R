@@ -119,5 +119,5 @@ nmea_split_fields <- function(x, names = NULL, split_chars = c(",", "*")) {
   }
 
   names(result) <- vctrs::vec_as_names(names[seq_along(result)], repair = "unique")
-  tibble::new_tibble(result, nrow = length(x))
+  tibble::new_tibble(result, nrow = vctrs::vec_size(x))
 }
