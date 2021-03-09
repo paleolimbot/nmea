@@ -8,6 +8,8 @@
 #' this package).
 #'
 #' @param x An object to be converted to one or more NMEA sentences
+#' @param nmea_col A column name containing the NMEA sentence in a data.frame.
+#'   Defaults to "sentence" as this is the column returned by [read_nmea()].
 #' @param ... Unused
 #'
 #' @return A [new_nmea()].
@@ -46,6 +48,12 @@ as_nmea.nmea <- function(x, ...) {
 #' @export
 as_nmea.list <- function(x, ...) {
   do.call(nmea, list(x))
+}
+
+#' @rdname nmea
+#' @export
+as_nmea.data.frame <- function(x, ..., nmea_col = "sentence") {
+  as_nmea(x[[nmea_col]])
 }
 
 #' @rdname nmea

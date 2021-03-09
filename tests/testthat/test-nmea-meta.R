@@ -18,9 +18,9 @@ test_that("nmea extractors work for character vectors", {
     all(nmea_message_type_label(x) %in% nmea_message_types$message_type_label)
   )
 
-  expect_vector(nmea_checksum(x), character())
+  expect_vector(nmea_checksum(x), integer())
   expect_length(nmea_checksum(x), length(x))
-  expect_true(all(nchar(nmea_checksum(x)) == 2))
+  expect_true(all(nmea_checksum(x) <= 255))
 
   expect_vector(
     nmea_meta(x),
@@ -29,7 +29,7 @@ test_that("nmea extractors work for character vectors", {
       sentence_id = character(),
       talker = character(),
       message_type = character(),
-      checksum = character()
+      checksum = integer()
     )
   )
 })
@@ -55,31 +55,5 @@ test_that("nmea extractors work for NA_character_", {
   expect_identical(nmea_message_type(NA_character_), NA_character_)
   expect_identical(nmea_message_type_label(NA_character_), NA_character_)
   expect_identical(nmea_talker_label(NA_character_), NA_character_)
-  expect_identical(nmea_checksum(NA_character_), NA_character_)
-})
-
-test_that("nmea_split_fields() works", {
-  expect_identical(
-    nmea_split_fields("a,b,c", names = c("a", "b", "c")),
-    tibble::tibble(a = "a", b = "b", c = "c")
-  )
-
-  expect_identical(
-    nmea_split_fields(as_nmea("a,b,c"), names = c("a", "b", "c")),
-    tibble::tibble(a = as_nmea("a"), b = as_nmea("b"), c = as_nmea("c"))
-  )
-
-  expect_identical(
-    nmea_split_fields(c("a,b,c", "a,b", NA, ""), names = c("a", "b", "c")),
-    tibble::tibble(
-      a = c("a", "a", NA, ""),
-      b = c("b", "b", NA, NA),
-      c = c("c", NA, NA, NA)
-    )
-  )
-
-  expect_identical(
-    nmea_split_fields(character()),
-    tibble::tibble()
-  )
+  expect_identical(nmea_checksum(NA_character_), NA_integer_)
 })

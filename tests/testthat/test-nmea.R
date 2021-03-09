@@ -3,6 +3,7 @@ test_that("nmea class works", {
   expect_s3_class(nmea(), "nmea")
   expect_identical(as_nmea(nmea()), nmea())
   expect_identical(as_nmea(list()), nmea())
+  expect_identical(as_nmea(data.frame(sentence = nmea())), nmea())
   expect_identical(as_nmea(raw()), nmea(list(raw())))
   expect_identical(
     as_nmea(nmea_test_basic),

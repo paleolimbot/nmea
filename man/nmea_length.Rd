@@ -2,7 +2,6 @@
 % Please edit documentation in R/nmea-meta.R
 \name{nmea_length}
 \alias{nmea_length}
-\alias{nmea_split_fields}
 \alias{nmea_sub}
 \alias{nmea_sentence_id}
 \alias{nmea_talker}
@@ -14,8 +13,6 @@
 \title{Extract NMEA components}
 \usage{
 nmea_length(x)
-
-nmea_split_fields(x, names = NULL, split_chars = c(",", "*"))
 
 nmea_sub(x, start = 0L, end = -1L)
 
@@ -38,12 +35,6 @@ nmea_meta(x)
 \arguments{
 \item{x}{An \code{\link[=nmea]{nmea()}} object.}
 
-\item{names}{Names to assign to fields or \code{NULL} to use a noisily
-assigned default.}
-
-\item{split_chars}{A character vector of split characters that delineate
-fields.}
-
 \item{start, end}{Zero-based to extract. Negative indices refer to values
 from the end of the sentence.}
 }
@@ -65,6 +56,5 @@ nmea_checksum(nmea_test_basic)
 nmea_meta(nmea_test_basic)
 
 nmea_sub(nmea_test_basic, 0, 6)
-nmea_split_fields(nmea_test_basic)
 
 }

@@ -5,6 +5,7 @@
 \alias{as_nmea}
 \alias{as_nmea.nmea}
 \alias{as_nmea.list}
+\alias{as_nmea.data.frame}
 \alias{as_nmea.raw}
 \alias{as_nmea.character}
 \title{Create NMEA sentences}
@@ -17,6 +18,8 @@ as_nmea(x, ...)
 
 \method{as_nmea}{list}(x, ...)
 
+\method{as_nmea}{data.frame}(x, ..., nmea_col = "sentence")
+
 \method{as_nmea}{raw}(x, ...)
 
 \method{as_nmea}{character}(x, ...)
@@ -25,6 +28,9 @@ as_nmea(x, ...)
 \item{x}{An object to be converted to one or more NMEA sentences}
 
 \item{...}{Unused}
+
+\item{nmea_col}{A column name containing the NMEA sentence in a data.frame.
+Defaults to "sentence" as this is the column returned by \code{\link[=read_nmea]{read_nmea()}}.}
 }
 \value{
 A \code{\link[=new_nmea]{new_nmea()}}.
