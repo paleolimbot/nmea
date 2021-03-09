@@ -1,4 +1,92 @@
 
+#' Extract fields from NMEA sentences
+#'
+#' @inheritParams nmea_length
+#' @param spec A [nmea_spec()] or named list such that the names
+#'   refer to the [nmea_sentence_id()].
+#'
+#' @return A [tibble::tibble()] with columns `checksum_valid`, `sentence_id`,
+#'   and columns defined by `spec`.
+#' @export
+#'
+#' @examples
+#' nmea_extract(nmea_test_basic)
+#'
+nmea_extract <- function(x, spec = nmea_spec_default(x)) {
+  x <- as_nmea(x)
+
+  chk <- nmea_parse_checksum(x)
+  chk$start[is.na(chk$start)] <- 0L
+  chk$end[is.na(chk$end)] <- nmea_length(x)
+
+  checksum_valid <- chk$calc == chk$found
+
+  x_fields_only <- nmea_sub(x, start = chk$start, end = chk$end)
+  split <- lapply(cpp_nmea_split(x_fields_only, ","), new_nmea)
+
+  if (length(split) == 0) {
+    return(
+      tibble::tibble(
+        checksum_valid = checksum_valid,
+        sentence_id = nmea_sentence_id(x)
+      )
+    )
+  }
+
+  sentence_id <- as.character(split[[1]])
+  split <- split[-1]
+  unique_sentence_id <- setdiff(unique(sentence_id), c(NA_character_, ""))
+
+  if (inherits(spec, "nmea_spec")) {
+    spec <- rep(list(spec), length(unique_sentence_id))
+    names(spec) <- unique_sentence_id
+  } else {
+    missing_ids <- setdiff(unique_sentence_id, names(spec))
+    if (length(missing_ids) > 0) {
+      missing_ids_lab <- paste0("'", missing_ids, "'", collapse = ", ")
+      warning(
+        sprintf(
+          "No rule to parse one or more sentences:\n%s",
+          missing_ids_lab
+        ),
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+
+    unique_sentence_id <- intersect(unique_sentence_id, names(spec))
+  }
+
+  result <- tibble::tibble(
+    checksum_valid = checksum_valid,
+    sentence_id = sentence_id
+  )
+
+  for (type in unique_sentence_id) {
+    type_spec <- spec[[type]]
+    type_match <- sentence_id == type
+    split_filter <- Map("[", split[seq_along(type_spec)], list(type_match))
+    split_values <- Map(nmea_col_parse, type_spec, split_filter)
+    names(split_values) <- names(type_spec)
+
+    new_names <- setdiff(names(split_values), names(result))
+    names(new_names) <- new_names
+    new_ptype <- lapply(
+      new_names,
+      function(x) nmea_col_parse(type_spec[[x]], nmea()[NA_integer_])
+    )
+    new_ptype <- tibble::new_tibble(new_ptype, nrow = 1L)
+
+    result <- vctrs::vec_cbind(result, new_ptype, .name_repair = "check_unique")
+
+    result[type_match, names(split_values)] <- split_values
+  }
+
+
+  result
+}
+
+
 #' Split NMEA into fields
 #'
 #' @inheritParams nmea_length

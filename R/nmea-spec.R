@@ -1,35 +1,64 @@
 
 #' Specify sentence parse structures
 #'
-#' @param ...,.default [nmea_col_character()] or similar.
-#'   These are most useful when named but this is not required.
+#' @inheritParams nmea_length
+#' @param max_guess The maximum number of sentences to parse when
+#'   accumulating default parse rules.
+#' @param ...,.default [nmea_col_character()] or similar. Dots must be
+#'   named.
 #'
-#' @return An object of class 'nmea_spec'.
+#' @return An object of class 'nmea_spec' or a named list. Either of these
+#'   can be passed to [nmea_extract()].
 #' @export
 #'
-nmea_spec <- function(..., .default = nmea_col_character()) {
-  stopifnot(inherits(.default, "nmea_col"))
+nmea_spec <- function(...) {
   values <- list(...)
-  stopifnot(all(vapply(values, inherits, "nmea_col", FUN.VALUE = logical(1))))
-
-  structure(
-    list(
-      cols = values,
-      default = .default
-    ),
-    class = "nmea_spec"
+  stopifnot(
+    all(vapply(values, inherits, "nmea_col", FUN.VALUE = logical(1))),
+    all(names(values) != ""),
+    (length(values) == 0) || !is.null(names(values))
   )
+
+  structure(values, class = "nmea_spec")
+}
+
+#' @rdname nmea_spec
+#' @export
+nmea_spec_default <- function(x, .default = nmea_col_character(), max_guess = 100L) {
+  stopifnot(inherits(.default, "nmea_col"))
+  x <- utils::head(as_nmea(x), max_guess)
+
+  chk <- nmea_parse_checksum(x)
+  chk$start[is.na(chk$start)] <- 0L
+  chk$end[is.na(chk$end)] <- nmea_length(x)
+  x_fields_only <- nmea_sub(x, start = chk$start, end = chk$end)
+  split <- lapply(cpp_nmea_split(x_fields_only, ","), new_nmea)
+
+  if (length(split) == 0) {
+    return(list())
+  }
+
+  sentence_id <- as.character(split[[1]])
+  sentence_ids <- setdiff(unique(sentence_id), NA_character_)
+  col_names <- lapply(sentence_ids, function(id) {
+    len <- length(cpp_nmea_split(x_fields_only[id == sentence_id], ",")) - 1L
+    sprintf("%s%02d", id, seq_len(len))
+  })
+
+  col_specs <- lapply(col_names, function(names) {
+    spec <- rep(list(.default), length(names))
+    names(spec) <- names
+    structure(spec, class = "nmea_spec")
+  })
+
+  names(col_specs) <- sentence_ids
+  col_specs
 }
 
 #' Specify NMEA field formats
 #'
-#' @param col_end A sequence of characters to search for
-#'   at the end of a sequence. Usually this is the same as
-#'   `col_end_sep` but for blob fields you probably need to specify
-#'   more than one character.
-#' @param col_end_sep The last character that should be skipped until
-#'   before the next field can be parsed. This is almost always a comma
-#'   (",").
+#' @inheritParams nmea_length
+#' @param value An [nmea()] vector derived from [nmea_split_fields()].
 #'
 #' @return An object of class 'nmea_col'
 #' @export
@@ -52,13 +81,32 @@ nmea_col_skip <- function() {
 
 #' @rdname nmea_col_character
 #' @export
-nmea_col_blob <- function(col_end = ",", col_end_sep = col_end) {
-  new_nmea_col("nmea_col_blob", col_end, col_end_sep)
+nmea_col_blob <- function() {
+  new_nmea_col("nmea_col_blob")
 }
 
-new_nmea_col <- function(subclass, col_end = ",", col_end_sep = ",") {
+new_nmea_col <- function(subclass, ...) {
   structure(
-    list(col_end = col_end, col_end_sep = col_end_sep),
+    list(...),
     class = c(subclass, "nmea_col")
   )
+}
+
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse <- function(x, value) {
+  UseMethod("nmea_col_parse")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_character <- function(x, value) {
+  as.character(value)
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_skip <- function(x, value) {
+  NULL
 }

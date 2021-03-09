@@ -2,16 +2,25 @@
 % Please edit documentation in R/nmea-spec.R
 \name{nmea_spec}
 \alias{nmea_spec}
+\alias{nmea_spec_default}
 \title{Specify sentence parse structures}
 \usage{
-nmea_spec(..., .default = nmea_col_character())
+nmea_spec(...)
+
+nmea_spec_default(x, .default = nmea_col_character(), max_guess = 100L)
 }
 \arguments{
-\item{..., .default}{\code{\link[=nmea_col_character]{nmea_col_character()}} or similar.
-These are most useful when named but this is not required.}
+\item{..., .default}{\code{\link[=nmea_col_character]{nmea_col_character()}} or similar. Dots must be
+named.}
+
+\item{x}{An \code{\link[=nmea]{nmea()}} object.}
+
+\item{max_guess}{The maximum number of sentences to parse when
+accumulating default parse rules.}
 }
 \value{
-An object of class 'nmea_spec'.
+An object of class 'nmea_spec' or a named list. Either of these
+can be passed to \code{\link[=nmea_extract]{nmea_extract()}}.
 }
 \description{
 Specify sentence parse structures

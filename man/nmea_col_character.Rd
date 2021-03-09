@@ -5,6 +5,9 @@
 \alias{nmea_col_double}
 \alias{nmea_col_skip}
 \alias{nmea_col_blob}
+\alias{nmea_col_parse}
+\alias{nmea_col_parse.nmea_col_character}
+\alias{nmea_col_parse.nmea_col_skip}
 \title{Specify NMEA field formats}
 \usage{
 nmea_col_character()
@@ -13,17 +16,18 @@ nmea_col_double()
 
 nmea_col_skip()
 
-nmea_col_blob(col_end = ",", col_end_sep = col_end)
+nmea_col_blob()
+
+nmea_col_parse(x, value)
+
+\method{nmea_col_parse}{nmea_col_character}(x, value)
+
+\method{nmea_col_parse}{nmea_col_skip}(x, value)
 }
 \arguments{
-\item{col_end}{A sequence of characters to search for
-at the end of a sequence. Usually this is the same as
-\code{col_end_sep} but for blob fields you probably need to specify
-more than one character.}
+\item{x}{An \code{\link[=nmea]{nmea()}} object.}
 
-\item{col_end_sep}{The last character that should be skipped until
-before the next field can be parsed. This is almost always a comma
-(",").}
+\item{value}{An \code{\link[=nmea]{nmea()}} vector derived from \code{\link[=nmea_split_fields]{nmea_split_fields()}}.}
 }
 \value{
 An object of class 'nmea_col'

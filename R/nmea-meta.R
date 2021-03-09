@@ -54,7 +54,9 @@ nmea_sub <- function(x, start = 0L, end = -1L) {
     result
   } else {
     x <- as_nmea(x)
-    indices <- Map(":", start + 1, end)
+    indices <- rep(list(NA_integer_), length(x))
+    finite <- !is.na(x) & !is.na(start) & !is.na(end)
+    indices[finite] <- Map(":", start[finite] + 1, end[finite])
     indices[result_len == 0] <- list(integer())
     new_nmea(Map("[", unclass(x), indices))
   }
