@@ -4,6 +4,7 @@
 #' @inheritParams nmea_length
 #' @param spec A [nmea_spec()] or named list such that the names
 #'   refer to the [nmea_sentence_id()].
+#' @param quiet Use `FALSE` to display possibly helpful progress messages.
 #'
 #' @return A [tibble::tibble()] with columns `checksum_valid`, `sentence_id`,
 #'   and columns defined by `spec`.
@@ -12,16 +13,20 @@
 #' @examples
 #' nmea_extract(nmea_test_basic)
 #'
-nmea_extract <- function(x, spec = nmea_spec_default(x)) {
+nmea_extract <- function(x, spec = nmea_spec_default(x), quiet = TRUE) {
   x <- as_nmea(x)
 
+  if (!quiet) message("Running `nmea_parse_checksum()`")
   chk <- nmea_parse_checksum(x)
   chk$start[is.na(chk$start)] <- 0L
   chk$end[is.na(chk$end)] <- nmea_length(x)
 
   checksum_valid <- chk$calc == chk$found
 
+  if (!quiet) message("Running `nmea_sub()`")
   x_fields_only <- nmea_sub(x, start = chk$start, end = chk$end)
+
+  if (!quiet) message("Running `nmea_split_fields()`")
   split <- lapply(cpp_nmea_split(x_fields_only, ","), new_nmea)
 
   if (length(split) == 0) {
@@ -64,9 +69,17 @@ nmea_extract <- function(x, spec = nmea_spec_default(x)) {
 
   for (type in unique_sentence_id) {
     type_spec <- spec[[type]]
+    if (length(type_spec) == 0) {
+      next
+    }
+
+    if (!quiet) message(sprintf("Extracting '%s'", type))
+
     type_match <- sentence_id == type
     split_filter <- Map("[", split[seq_along(type_spec)], list(type_match))
     split_values <- Map(nmea_col_parse, type_spec, split_filter)
+    # remove NULL (from col_skip)
+    split_values <- split_values[!vapply(split_values, is.null, logical(1))]
     names(split_values) <- names(type_spec)
 
     new_names <- setdiff(names(split_values), names(result))

@@ -4,13 +4,15 @@
 \alias{nmea_extract}
 \title{Extract fields from NMEA sentences}
 \usage{
-nmea_extract(x, spec = nmea_spec_default(x))
+nmea_extract(x, spec = nmea_spec_default(x), quiet = TRUE)
 }
 \arguments{
 \item{x}{An \code{\link[=nmea]{nmea()}} object.}
 
 \item{spec}{A \code{\link[=nmea_spec]{nmea_spec()}} or named list such that the names
 refer to the \code{\link[=nmea_sentence_id]{nmea_sentence_id()}}.}
+
+\item{quiet}{Use \code{FALSE} to display possibly helpful progress messages.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}} with columns \code{checksum_valid}, \code{sentence_id},

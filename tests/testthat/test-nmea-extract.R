@@ -26,6 +26,20 @@ test_that("nmea_extract() works for valid input", {
   expect_true(all(!is.na(ext$GPGGA01[ext$sentence_id == "GPGGA"])))
 })
 
+test_that("nmea_extract() parses sentences with an empty spec", {
+  expect_identical(
+    nmea_extract("$ABC123"),
+    tibble::tibble(
+      checksum_valid = NA,
+      sentence_id = "ABC123"
+    )
+  )
+})
+
+test_that("nmea_extract() warns for sentences not considered in spec", {
+  expect_warning(nmea_extract("$ABC123", spec = list()), "No rule to parse one")
+})
+
 test_that("nmea_split_fields() works", {
   expect_identical(
     nmea_split_fields("a,b,c", names = c("a", "b", "c")),
