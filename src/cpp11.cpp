@@ -32,12 +32,14 @@ extern SEXP _nmea_cpp_nmea_as_character(SEXP, SEXP);
 extern SEXP _nmea_cpp_nmea_split(SEXP, SEXP);
 extern SEXP _nmea_cpp_read_nmea(SEXP, SEXP, SEXP, SEXP);
 extern SEXP nmea_c_character_as_nmea(SEXP);
+extern SEXP nmea_c_checksum(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_nmea_cpp_nmea_as_character", (DL_FUNC) &_nmea_cpp_nmea_as_character, 2},
     {"_nmea_cpp_nmea_split",        (DL_FUNC) &_nmea_cpp_nmea_split,        2},
     {"_nmea_cpp_read_nmea",         (DL_FUNC) &_nmea_cpp_read_nmea,         4},
     {"nmea_c_character_as_nmea",    (DL_FUNC) &nmea_c_character_as_nmea,    1},
+    {"nmea_c_checksum",             (DL_FUNC) &nmea_c_checksum,             1},
     {NULL, NULL, 0}
 };
 }
