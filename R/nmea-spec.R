@@ -4,6 +4,7 @@
 #' @inheritParams nmea_length
 #' @param max_guess The maximum number of sentences to parse when
 #'   accumulating default parse rules.
+#' @param col_name Optional column name for better error messages.
 #' @param ...,.default [nmea_col_character()] or similar. Dots must be
 #'   named.
 #'
@@ -79,12 +80,6 @@ nmea_col_skip <- function() {
   new_nmea_col("nmea_col_skip")
 }
 
-#' @rdname nmea_col_character
-#' @export
-nmea_col_blob <- function() {
-  new_nmea_col("nmea_col_blob")
-}
-
 new_nmea_col <- function(subclass, ...) {
   structure(
     list(...),
@@ -95,18 +90,38 @@ new_nmea_col <- function(subclass, ...) {
 
 #' @rdname nmea_col_character
 #' @export
-nmea_col_parse <- function(x, value) {
+nmea_col_parse <- function(x, value, col_name = "x") {
   UseMethod("nmea_col_parse")
 }
 
 #' @rdname nmea_col_character
 #' @export
-nmea_col_parse.nmea_col_character <- function(x, value) {
+nmea_col_parse.nmea_col_character <- function(x, value, col_name = "x") {
   as.character(value)
 }
 
 #' @rdname nmea_col_character
 #' @export
-nmea_col_parse.nmea_col_skip <- function(x, value) {
+nmea_col_parse.nmea_col_double <- function(x, value, col_name = "x") {
+  result <- suppressWarnings(as.numeric(as.character(value)))
+  new_na <- is.na(result) & !is.na(value)
+  if (any(new_na)) {
+    warning(
+      sprintf(
+        "Error parsing column `%s`:\n%d non-numeric values set to `NA`",
+        col_name,
+        sum(new_na)
+      ),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+
+  result
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_skip <- function(x, value, col_name = "x") {
   NULL
 }

@@ -77,10 +77,11 @@ nmea_extract <- function(x, spec = nmea_spec_default(x), quiet = TRUE) {
 
     type_match <- sentence_id == type
     split_filter <- Map("[", split[seq_along(type_spec)], list(type_match))
-    split_values <- Map(nmea_col_parse, type_spec, split_filter)
+    split_values <- Map(nmea_col_parse, type_spec, split_filter, names(type_spec))
+    names(split_values) <- names(type_spec)
+
     # remove NULL (from col_skip)
     split_values <- split_values[!vapply(split_values, is.null, logical(1))]
-    names(split_values) <- names(type_spec)
 
     new_names <- setdiff(names(split_values), names(result))
     names(new_names) <- new_names

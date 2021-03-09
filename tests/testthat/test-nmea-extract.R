@@ -40,6 +40,33 @@ test_that("nmea_extract() warns for sentences not considered in spec", {
   expect_warning(nmea_extract("$ABC123", spec = list()), "No rule to parse one")
 })
 
+test_that("nmea_extract() works with nmea_col_skip()", {
+  extract_skip <- nmea_extract(
+    "$GPRTE,1,1,c,*37",
+    spec = nmea_spec(
+      col1 = nmea_col_skip(),
+      col2 = nmea_col_double(),
+      col3 = nmea_col_character()
+    )
+  )
+
+  expect_named(extract_skip, c("checksum_valid", "sentence_id", "col2", "col3"))
+})
+
+test_that("nmea_extract() warns on bad parse", {
+  expect_warning(
+    nmea_extract(
+      "$GPRTE,1,1,c,*37",
+      spec = nmea_spec(
+        col1 = nmea_col_character(),
+        col2 = nmea_col_character(),
+        col3 = nmea_col_double()
+      )
+    ),
+    "Error parsing column `col3`"
+  )
+})
+
 test_that("nmea_split_fields() works", {
   expect_identical(
     nmea_split_fields("a,b,c", names = c("a", "b", "c")),

@@ -4,9 +4,9 @@
 \alias{nmea_col_character}
 \alias{nmea_col_double}
 \alias{nmea_col_skip}
-\alias{nmea_col_blob}
 \alias{nmea_col_parse}
 \alias{nmea_col_parse.nmea_col_character}
+\alias{nmea_col_parse.nmea_col_double}
 \alias{nmea_col_parse.nmea_col_skip}
 \title{Specify NMEA field formats}
 \usage{
@@ -16,13 +16,13 @@ nmea_col_double()
 
 nmea_col_skip()
 
-nmea_col_blob()
+nmea_col_parse(x, value, col_name = "x")
 
-nmea_col_parse(x, value)
+\method{nmea_col_parse}{nmea_col_character}(x, value, col_name = "x")
 
-\method{nmea_col_parse}{nmea_col_character}(x, value)
+\method{nmea_col_parse}{nmea_col_double}(x, value, col_name = "x")
 
-\method{nmea_col_parse}{nmea_col_skip}(x, value)
+\method{nmea_col_parse}{nmea_col_skip}(x, value, col_name = "x")
 }
 \arguments{
 \item{x}{An \code{\link[=nmea]{nmea()}} object.}

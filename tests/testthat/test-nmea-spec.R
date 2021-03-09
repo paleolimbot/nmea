@@ -14,3 +14,13 @@ test_that("nmea_spec_default() works", {
 
   expect_identical(nmea_spec_default(character()), list())
 })
+
+test_that("column value parsers work", {
+  expect_identical(nmea_col_parse(nmea_col_character(), nmea()), character())
+  expect_identical(nmea_col_parse(nmea_col_skip(), nmea()), NULL)
+  expect_identical(nmea_col_parse(nmea_col_double(), as_nmea("12.3")), 12.3)
+  expect_warning(
+    nmea_col_parse(nmea_col_double(), as_nmea(c(NA, "12.3", "xx"))),
+    "Error parsing column"
+  )
+})

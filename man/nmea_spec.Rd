@@ -17,6 +17,8 @@ named.}
 
 \item{max_guess}{The maximum number of sentences to parse when
 accumulating default parse rules.}
+
+\item{col_name}{Optional column name for better error messages.}
 }
 \value{
 An object of class 'nmea_spec' or a named list. Either of these
