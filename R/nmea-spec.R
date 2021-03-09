@@ -4,7 +4,6 @@
 #' @inheritParams nmea_length
 #' @param max_guess The maximum number of sentences to parse when
 #'   accumulating default parse rules.
-#' @param col_name Optional column name for better error messages.
 #' @param ...,.default [nmea_col_character()] or similar. Dots must be
 #'   named.
 #'
@@ -59,6 +58,7 @@ nmea_spec_default <- function(x, .default = nmea_col_character(), max_guess = 10
 #' Specify NMEA field formats
 #'
 #' @inheritParams nmea_length
+#' @param col_name Optional column name for better error messages.
 #' @param value An [nmea()] vector derived from [nmea_split_fields()].
 #'
 #' @return An object of class 'nmea_col'
@@ -72,6 +72,24 @@ nmea_col_character <- function() {
 #' @export
 nmea_col_double <- function() {
   new_nmea_col("nmea_col_double")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_timestamp <- function() {
+  new_nmea_col("nmea_col_timestamp")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_integer <- function() {
+  new_nmea_col("nmea_col_integer")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_datestamp <- function() {
+  new_nmea_col("nmea_col_datesteamp")
 }
 
 #' @rdname nmea_col_character
@@ -104,6 +122,33 @@ nmea_col_parse.nmea_col_character <- function(x, value, col_name = "x") {
 #' @export
 nmea_col_parse.nmea_col_double <- function(x, value, col_name = "x") {
   result <- suppressWarnings(as.numeric(as.character(value)))
+  new_na <- is.na(result) & !is.na(value)
+  if (any(new_na)) {
+    warning(
+      sprintf(
+        "Error parsing column `%s`:\n%d non-numeric values set to `NA`",
+        col_name,
+        sum(new_na)
+      ),
+      call. = FALSE,
+      immediate. = TRUE
+    )
+  }
+
+  result
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_timestamp <- function(x, value, col_name = "x") {
+  result <- nmea_col_parse.nmea_col_double(x, value, col_name)
+  as.POSIXct(result, tz = "UTC", origin = "1970-01-01 00:00:00")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_integer <- function(x, value, col_name = "x") {
+  result <- suppressWarnings(as.numeric(as.integer(value)))
   new_na <- is.na(result) & !is.na(value)
   if (any(new_na)) {
     warning(

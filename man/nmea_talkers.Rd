@@ -4,23 +4,29 @@
 \name{nmea_talkers}
 \alias{nmea_talkers}
 \alias{nmea_message_types}
-\title{NMEA talkers and message types}
+\alias{nmea_fields}
+\title{NMEA talkers, message types, and fields}
 \format{
 An object of class \code{data.frame} with 48 rows and 2 columns.
 
 An object of class \code{data.frame} with 67 rows and 2 columns.
+
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 454 rows and 4 columns.
 }
 \usage{
 nmea_talkers
 
 nmea_message_types
+
+nmea_fields
 }
 \description{
-NMEA talkers and message types
+NMEA talkers, message types, and fields
 }
 \examples{
 head(nmea_talkers)
 head(nmea_message_types)
+head(nmea_fields)
 
 }
 \keyword{datasets}

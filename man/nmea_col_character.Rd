@@ -3,16 +3,27 @@
 \name{nmea_col_character}
 \alias{nmea_col_character}
 \alias{nmea_col_double}
+\alias{nmea_col_timestamp}
+\alias{nmea_col_integer}
+\alias{nmea_col_datestamp}
 \alias{nmea_col_skip}
 \alias{nmea_col_parse}
 \alias{nmea_col_parse.nmea_col_character}
 \alias{nmea_col_parse.nmea_col_double}
+\alias{nmea_col_parse.nmea_col_timestamp}
+\alias{nmea_col_parse.nmea_col_integer}
 \alias{nmea_col_parse.nmea_col_skip}
 \title{Specify NMEA field formats}
 \usage{
 nmea_col_character()
 
 nmea_col_double()
+
+nmea_col_timestamp()
+
+nmea_col_integer()
+
+nmea_col_datestamp()
 
 nmea_col_skip()
 
@@ -22,12 +33,18 @@ nmea_col_parse(x, value, col_name = "x")
 
 \method{nmea_col_parse}{nmea_col_double}(x, value, col_name = "x")
 
+\method{nmea_col_parse}{nmea_col_timestamp}(x, value, col_name = "x")
+
+\method{nmea_col_parse}{nmea_col_integer}(x, value, col_name = "x")
+
 \method{nmea_col_parse}{nmea_col_skip}(x, value, col_name = "x")
 }
 \arguments{
 \item{x}{An \code{\link[=nmea]{nmea()}} object.}
 
 \item{value}{An \code{\link[=nmea]{nmea()}} vector derived from \code{\link[=nmea_split_fields]{nmea_split_fields()}}.}
+
+\item{col_name}{Optional column name for better error messages.}
 }
 \value{
 An object of class 'nmea_col'
