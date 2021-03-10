@@ -90,6 +90,7 @@ nmea_spec_default <- function(x, .default = nmea_col_character(), max_guess = 10
         switch(
           x,
           timestamp = nmea_col_timestamp(),
+          datestamp = nmea_col_datestamp(),
           double = nmea_col_double(),
           integer = nmea_col_integer(),
           nmea_col_character()
@@ -138,7 +139,7 @@ nmea_col_integer <- function() {
 #' @rdname nmea_col_character
 #' @export
 nmea_col_datestamp <- function() {
-  new_nmea_col("nmea_col_datesteamp")
+  new_nmea_col("nmea_col_datestamp")
 }
 
 #' @rdname nmea_col_character
@@ -178,6 +179,13 @@ nmea_col_parse.nmea_col_double <- function(x, value, col_name = "x") {
 nmea_col_parse.nmea_col_timestamp <- function(x, value, col_name = "x") {
   # these are in the form 001122 -> 00:11:22 UTC
   readr::parse_time(as.character(value), format = "%H%M%S")
+}
+
+#' @rdname nmea_col_character
+#' @export
+nmea_col_parse.nmea_col_datestamp <- function(x, value, col_name = "x") {
+  # these are in the form 191194 -> 19 November 1994
+  readr::parse_date(as.character(value), format = "%y%m%d")
 }
 
 #' @rdname nmea_col_character

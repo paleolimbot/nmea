@@ -11,6 +11,7 @@
 \alias{nmea_col_parse.nmea_col_character}
 \alias{nmea_col_parse.nmea_col_double}
 \alias{nmea_col_parse.nmea_col_timestamp}
+\alias{nmea_col_parse.nmea_col_datestamp}
 \alias{nmea_col_parse.nmea_col_integer}
 \alias{nmea_col_parse.nmea_col_skip}
 \title{Specify NMEA field formats}
@@ -34,6 +35,8 @@ nmea_col_parse(x, value, col_name = "x")
 \method{nmea_col_parse}{nmea_col_double}(x, value, col_name = "x")
 
 \method{nmea_col_parse}{nmea_col_timestamp}(x, value, col_name = "x")
+
+\method{nmea_col_parse}{nmea_col_datestamp}(x, value, col_name = "x")
 
 \method{nmea_col_parse}{nmea_col_integer}(x, value, col_name = "x")
 
