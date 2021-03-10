@@ -2,11 +2,17 @@ Package: nmea
 Title: Parse 'NMEA' Sentences
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "Dewey",
-           family = "Dunnington",
-           role = c("aut", "cre"),
-           email = "dewey.dunnington@dfo-mpo.gc.ca",
-           comment = c(ORCID = "0000-0002-9415-4582"))
+    c(
+      person(given = "Dewey",
+             family = "Dunnington",
+             role = c("aut", "cre"),
+             email = "dewey.dunnington@dfo-mpo.gc.ca",
+             comment = c(ORCID = "0000-0002-9415-4582")),
+      person(given = "Tom",
+             family = "Flanagan",
+             role = "cph",
+             comment = "author of 'pynmea2'")
+    )
 Description: Parse streams of bytes encoding National Marine Electronics
   Association ('NMEA') sentences.
 License: MIT + file LICENSE

@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Dewey Dunnington \email{dewey.dunnington@dfo-mpo.gc.ca} (\href{https://orcid.org/0000-0002-9415-4582}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Tom Flanagan (author of 'pynmea2') [copyright holder]
+}
+
 }
 \keyword{internal}
