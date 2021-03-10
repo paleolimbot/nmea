@@ -6,6 +6,12 @@ test_that("read_nmea() can use filenames, raw vectors, or connections", {
   close(file_con)
 
   expect_identical(read_nmea(file), read_nmea(file_raw))
+  expect_identical(read_nmea(file(file)), read_nmea(file_raw))
+  expect_identical(read_nmea(file(file, open = "rb")), read_nmea(file_raw))
+})
+
+test_that("read_nmea() errors for invalid input", {
+  expect_error(read_nmea(Sys.Date()), "must be a filename, connection")
 })
 
 test_that("read_nmea() regenerates nmea_test_basic", {

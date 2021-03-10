@@ -138,7 +138,7 @@ nmea_checksum <- function(x) {
 #' @export
 nmea_meta <- function(x) {
   result <- list(
-    len = nmea_length(x),
+    length = nmea_length(x),
     sentence_id = nmea_sentence_id(x),
     talker = nmea_talker(x),
     message_type = nmea_message_type(x),

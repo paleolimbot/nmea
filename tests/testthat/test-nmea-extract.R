@@ -16,6 +16,22 @@ test_that("nmea_extract() works for zero length and invalid input", {
   )
 })
 
+test_that("nmea_extrct() can be noisy", {
+  expect_message(
+    expect_message(
+      expect_message(
+        expect_message(
+          nmea_extract(nmea_test_basic[1], quiet = FALSE),
+          "Running"
+        ),
+        "Running"
+      ),
+      "Running"
+    ),
+    "Extracting"
+  )
+})
+
 test_that("nmea_extract() works for valid input", {
   ext <- nmea_extract(nmea_test_basic, spec = nmea_spec_character(nmea_test_basic))
   expect_identical(ext$sentence_id, nmea_sentence_id(nmea_test_basic))

@@ -21,7 +21,7 @@ test_that("nmea_spec_default() works", {
   expect_false(
     all(vapply(default$GPRMC, inherits, "nmea_col_character", FUN.VALUE = logical(1)))
   )
-  expect_identical(nmea_spec_character(character()), list())
+  expect_identical(nmea_spec_default(character()), list())
 })
 
 test_that("column value parsers work", {
@@ -32,4 +32,14 @@ test_that("column value parsers work", {
     nmea_col_parse(nmea_col_double(), as_nmea(c(NA, "12.3", "xx"))),
     "1 parsing failure"
   )
+  expect_identical(nmea_col_parse(nmea_col_integer(), as_nmea("12")), 12)
+  expect_identical(
+    nmea_col_parse(nmea_col_datestamp(), "191194"),
+    as.Date("1994-11-19")
+  )
+  expect_identical(
+    nmea_col_parse(nmea_col_timestamp(), "001122"),
+    readr::parse_time("00:11:22")
+  )
+
 })

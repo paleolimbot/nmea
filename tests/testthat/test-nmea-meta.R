@@ -21,11 +21,12 @@ test_that("nmea extractors work for character vectors", {
   expect_vector(nmea_checksum(x), integer())
   expect_length(nmea_checksum(x), length(x))
   expect_true(all(nmea_checksum(x) <= 255))
+  expect_identical(nmea_checksum(character()), integer())
 
   expect_vector(
     nmea_meta(x),
     tibble::tibble(
-      len = integer(),
+      length = integer(),
       sentence_id = character(),
       talker = character(),
       message_type = character(),
@@ -44,6 +45,7 @@ test_that("nmea extractors work for nmea objects", {
   expect_identical(nmea_talker(x), nmea_talker(chr))
   expect_identical(nmea_message_type(x), nmea_message_type(chr))
   expect_identical(nmea_checksum(x), nmea_checksum(chr))
+  expect_identical(nmea_checksum(nmea()), nmea_checksum(character()))
   expect_identical(nmea_meta(x), nmea_meta(chr))
 })
 
