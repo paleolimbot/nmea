@@ -7,6 +7,7 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/paleolimbot/nmea/workflows/R-CMD-check/badge.svg)](https://github.com/paleolimbot/nmea/actions)
 <!-- badges: end -->
 
 The goal of nmea is to read, check, and extract useful information from
