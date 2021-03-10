@@ -22,6 +22,6 @@ and columns defined by \code{spec}.
 Extract fields from NMEA sentences
 }
 \examples{
-nmea_extract(nmea_test_basic)
+nmea_extract(nmea_test_basic[4])
 
 }

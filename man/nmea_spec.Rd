@@ -2,10 +2,13 @@
 % Please edit documentation in R/nmea-spec.R
 \name{nmea_spec}
 \alias{nmea_spec}
+\alias{nmea_spec_character}
 \alias{nmea_spec_default}
 \title{Specify sentence parse structures}
 \usage{
 nmea_spec(...)
+
+nmea_spec_character(x, max_guess = 100L)
 
 nmea_spec_default(x, .default = nmea_col_character(), max_guess = 100L)
 }

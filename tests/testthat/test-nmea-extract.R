@@ -17,13 +17,13 @@ test_that("nmea_extract() works for zero length and invalid input", {
 })
 
 test_that("nmea_extract() works for valid input", {
-  ext <- nmea_extract(nmea_test_basic)
+  ext <- nmea_extract(nmea_test_basic, spec = nmea_spec_character(nmea_test_basic))
   expect_identical(ext$sentence_id, nmea_sentence_id(nmea_test_basic))
 
-  expect_true(all(!is.na(ext$GPGSA01[ext$sentence_id == "GPGSA"])))
-  expect_true(all(!is.na(ext$GPGSV01[ext$sentence_id == "GPGSV"])))
-  expect_true(all(!is.na(ext$GPRMC01[ext$sentence_id == "GPRMC"])))
-  expect_true(all(!is.na(ext$GPGGA01[ext$sentence_id == "GPGGA"])))
+  expect_true(all(!is.na(ext$gpgsa01[ext$sentence_id == "GPGSA"])))
+  expect_true(all(!is.na(ext$gpgsv01[ext$sentence_id == "GPGSV"])))
+  expect_true(all(!is.na(ext$gprmc01[ext$sentence_id == "GPRMC"])))
+  expect_true(all(!is.na(ext$gpgga01[ext$sentence_id == "GPGGA"])))
 })
 
 test_that("nmea_extract() parses sentences with an empty spec", {
@@ -63,7 +63,7 @@ test_that("nmea_extract() warns on bad parse", {
         col3 = nmea_col_double()
       )
     ),
-    "Error parsing column `col3`"
+    "1 parsing failure"
   )
 })
 

@@ -11,7 +11,7 @@
 #' @export
 #'
 #' @examples
-#' nmea_extract(nmea_test_basic)
+#' nmea_extract(nmea_test_basic[4])
 #'
 nmea_extract <- function(x, spec = nmea_spec_default(x), quiet = TRUE) {
   x <- as_nmea(x)

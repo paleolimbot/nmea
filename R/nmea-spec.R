@@ -24,6 +24,34 @@ nmea_spec <- function(...) {
 
 #' @rdname nmea_spec
 #' @export
+nmea_spec_character <- function(x, max_guess = 100L) {
+  x <- utils::head(as_nmea(x), max_guess)
+
+  chk <- nmea_parse_checksum(x)
+  chk$start[is.na(chk$start)] <- 0L
+  chk$end[is.na(chk$end)] <- nmea_length(x)
+  x_fields_only <- nmea_sub(x, start = chk$start, end = chk$end)
+  split <- lapply(cpp_nmea_split(x_fields_only, ","), new_nmea)
+
+  if (length(split) == 0) {
+    return(list())
+  }
+
+  sentence_id <- as.character(split[[1]])
+  sentence_ids <- setdiff(unique(sentence_id), NA_character_)
+
+  col_specs <- lapply(sentence_ids, function(x) {
+    spec <- rep(list(nmea_col_character()), length(split))
+    names(spec) <- sprintf("%s%02d", tolower(x), seq_along(split))
+    spec
+  })
+
+  names(col_specs) <- sentence_ids
+  col_specs
+}
+
+#' @rdname nmea_spec
+#' @export
 nmea_spec_default <- function(x, .default = nmea_col_character(), max_guess = 100L) {
   stopifnot(inherits(.default, "nmea_col"))
   x <- utils::head(as_nmea(x), max_guess)
@@ -40,15 +68,36 @@ nmea_spec_default <- function(x, .default = nmea_col_character(), max_guess = 10
 
   sentence_id <- as.character(split[[1]])
   sentence_ids <- setdiff(unique(sentence_id), NA_character_)
-  col_names <- lapply(sentence_ids, function(id) {
-    len <- length(cpp_nmea_split(x_fields_only[id == sentence_id], ",")) - 1L
-    sprintf("%s%02d", id, seq_len(len))
-  })
 
-  col_specs <- lapply(col_names, function(names) {
+  col_specs <- lapply(sentence_ids, function(id) {
+    len <- length(cpp_nmea_split(x_fields_only[id == sentence_id], ",")) - 1L
+    names <- sprintf("%s%02d", tolower(id), seq_len(len))
+
+    msg_type <- substr(id, 3, 20)
+    fields <- nmea::nmea_fields[nmea::nmea_fields$message_type == msg_type, ]
+    field_indices <- seq_len(min(nrow(fields), length(names)))
+
+    names[field_indices] <- sprintf(
+      "%s_%s",
+      tolower(id),
+      fields$field_name[field_indices]
+    )
+
     spec <- rep(list(.default), length(names))
+    spec[field_indices] <- lapply(
+      fields$field_type[field_indices],
+      function(x) {
+        switch(
+          x,
+          timestamp = nmea_col_timestamp(),
+          double = nmea_col_double(),
+          integer = nmea_col_integer(),
+          nmea_col_character()
+        )
+      })
+
     names(spec) <- names
-    structure(spec, class = "nmea_spec")
+    spec
   })
 
   names(col_specs) <- sentence_ids
@@ -121,48 +170,20 @@ nmea_col_parse.nmea_col_character <- function(x, value, col_name = "x") {
 #' @rdname nmea_col_character
 #' @export
 nmea_col_parse.nmea_col_double <- function(x, value, col_name = "x") {
-  result <- suppressWarnings(as.numeric(as.character(value)))
-  new_na <- is.na(result) & !is.na(value)
-  if (any(new_na)) {
-    warning(
-      sprintf(
-        "Error parsing column `%s`:\n%d non-numeric values set to `NA`",
-        col_name,
-        sum(new_na)
-      ),
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-
-  result
+  readr::parse_double(as.character(value))
 }
 
 #' @rdname nmea_col_character
 #' @export
 nmea_col_parse.nmea_col_timestamp <- function(x, value, col_name = "x") {
-  result <- nmea_col_parse.nmea_col_double(x, value, col_name)
-  as.POSIXct(result, tz = "UTC", origin = "1970-01-01 00:00:00")
+  # these are in the form 001122 -> 00:11:22 UTC
+  readr::parse_time(as.character(value), format = "%H%M%S")
 }
 
 #' @rdname nmea_col_character
 #' @export
 nmea_col_parse.nmea_col_integer <- function(x, value, col_name = "x") {
-  result <- suppressWarnings(as.numeric(as.integer(value)))
-  new_na <- is.na(result) & !is.na(value)
-  if (any(new_na)) {
-    warning(
-      sprintf(
-        "Error parsing column `%s`:\n%d non-numeric values set to `NA`",
-        col_name,
-        sum(new_na)
-      ),
-      call. = FALSE,
-      immediate. = TRUE
-    )
-  }
-
-  result
+  readr::parse_double(as.character(value))
 }
 
 #' @rdname nmea_col_character
