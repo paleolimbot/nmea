@@ -185,7 +185,7 @@ nmea_col_parse.nmea_col_timestamp <- function(x, value, col_name = "x") {
 #' @export
 nmea_col_parse.nmea_col_datestamp <- function(x, value, col_name = "x") {
   # these are in the form 191194 -> 19 November 1994
-  readr::parse_date(as.character(value), format = "%y%m%d")
+  readr::parse_date(as.character(value), format = "%d%m%y")
 }
 
 #' @rdname nmea_col_character
