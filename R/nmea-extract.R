@@ -19,7 +19,7 @@ nmea_extract <- function(x, spec = nmea_spec_default(x), quiet = TRUE) {
   if (!quiet) message("Running `nmea_parse_checksum()`")
   chk <- nmea_parse_checksum(x)
   chk$start[is.na(chk$start)] <- 0L
-  chk$end[is.na(chk$end)] <- nmea_length(x)
+  chk$end[is.na(chk$end)] <- nmea_length(x[is.na(chk$end)])
 
   checksum_valid <- chk$calc == chk$found
 
