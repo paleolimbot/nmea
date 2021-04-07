@@ -1,7 +1,6 @@
 
 #include <cpp11.hpp>
 using namespace cpp11;
-namespace writable = cpp11::writable;
 
 #include <sstream>
 #include <iomanip>
@@ -15,7 +14,7 @@ strings cpp_nmea_as_character(list nmea, bool ascii) {
     unsigned char min_char = 32;
     unsigned char max_char = 126;
 
-    // for export to true character vector, use the whole range 
+    // for export to true character vector, use the whole range
     // except the null character
     if (ascii) {
         min_char = 0x01;

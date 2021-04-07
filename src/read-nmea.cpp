@@ -1,6 +1,5 @@
 #include <cpp11.hpp>
 using namespace cpp11;
-namespace writable = cpp11::writable;
 
 #include "nmea/source.hpp"
 
@@ -46,9 +45,9 @@ list cpp_read_nmea(list obj,
         size_t n_skipped = scanner.skip_until(sentence_start);
         offset += (item.size() + n_skipped);
     }
-    
+
     writable::list out = {offsets, sentences};
     out.names() = {"offset", "sentence"};
-    
+
     return out;
 }
