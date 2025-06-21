@@ -65,7 +65,7 @@ as_nmea.raw <- function(x, ...) {
 #' @rdname nmea
 #' @export
 as_nmea.character <- function(x, ...) {
-  new_nmea(.Call(nmea_c_character_as_nmea, x))
+  new_nmea(.Call(nmea_c_character_as_nmea, x)) #is this use of .Call ok?
 }
 
 
