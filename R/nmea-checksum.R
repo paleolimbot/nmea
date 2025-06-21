@@ -28,6 +28,6 @@
 #'
 nmea_parse_checksum <- function(x) {
   x <- as_nmea(x)
-  result <- .Call(`_nmea_c_checksum`, x) 
+  result <- .Call(`nmea_c_checksum`, x) 
   tibble::new_tibble(result, nrow = length(x))
 }
